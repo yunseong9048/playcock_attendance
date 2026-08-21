@@ -44,6 +44,13 @@ export default async function HomePage() {
           <div className="shrink-0 rounded-2xl bg-ink px-5 py-3 text-center text-white"><span className="block text-2xl font-black">{attendance.length}</span><span className="text-xs text-white/70">오늘 출석</span></div>
         </div>
       </section>
+      <section className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-card" aria-labelledby="payment-notice-title">
+        <p id="payment-notice-title" className="text-lg font-black text-amber-950">출석 후 콕 제출과 입금확인!</p>
+        <div className="mt-3 rounded-2xl bg-white/80 px-4 py-3">
+          <p className="text-lg font-black tracking-tight text-ink">카카오뱅크 3333-30-6012841</p>
+          <p className="mt-1 text-sm font-bold text-slate-600">예금주: 김영근</p>
+        </div>
+      </section>
       {loadError ? <div className="card border-red-100 text-center text-red-700">데이터를 불러오지 못했습니다. 환경변수와 Supabase 설정을 확인해 주세요.</div> : <AttendancePanel members={members} attendedIds={attendance.map((item) => item.member_id)} />}
       <section className="card">
         <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-black">오늘의 출석자</h2><span className="rounded-full bg-court-100 px-3 py-1 text-sm font-bold text-court-700">{attendance.length}명</span></div>
