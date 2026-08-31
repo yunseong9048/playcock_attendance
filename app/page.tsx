@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AttendanceCancelButton } from "@/components/attendance-cancel-button";
 import { AttendancePanel } from "@/components/attendance-panel";
 import { displayDate, displayTime, todayInSeoul } from "@/lib/date";
 import { createAdminClient } from "@/lib/supabase";
@@ -97,7 +98,7 @@ export default async function HomePage() {
       {loadError ? <div className="card border-red-100 text-center text-red-700">데이터를 불러오지 못했습니다. 새로고침 해주세요</div> : <AttendancePanel members={members} attendedIds={attendance.map((item) => item.member_id)} />}
       <section className="card">
         <div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-black">오늘의 출석자</h2><span className="rounded-full bg-court-100 px-3 py-1 text-sm font-bold text-court-700">{attendance.length}명</span></div>
-        {attendance.length ? <ul className="divide-y divide-slate-100">{attendance.map((item, index) => <li key={item.id} className="flex items-center gap-3 py-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-court-50 text-sm font-black text-court-600">{index + 1}</span><span className="flex-1 font-bold">{item.members?.name ?? "알 수 없는 회원"}</span><time className="text-sm text-slate-500">{displayTime(item.checked_at)}</time></li>)}</ul> : <div className="py-8 text-center text-slate-500"><p className="text-3xl">🏸</p><p className="mt-2">아직 출석한 회원이 없어요.</p></div>}
+        {attendance.length ? <ul className="divide-y divide-slate-100">{attendance.map((item, index) => { const memberName = item.members?.name ?? "알 수 없는 회원"; return <li key={item.id} className="flex flex-wrap items-center gap-3 py-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-court-50 text-sm font-black text-court-600">{index + 1}</span><span className="min-w-24 flex-1 font-bold">{memberName}</span><time className="text-sm text-slate-500">{displayTime(item.checked_at)}</time><AttendanceCancelButton memberId={item.member_id} memberName={memberName} /></li>; })}</ul> : <div className="py-8 text-center text-slate-500"><p className="text-3xl">🏸</p><p className="mt-2">아직 출석한 회원이 없어요.</p></div>}
       </section>
     </div>
   );
