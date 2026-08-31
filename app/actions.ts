@@ -42,6 +42,29 @@ export async function checkAttendance(_: ActionState, formData: FormData): Promi
   } catch (error) { return { ok: false, message: errorMessage(error) }; }
 }
 
+export async function cancelAttendance(_: ActionState, formData: FormData): Promise<ActionState> {
+  const memberId = z.string().uuid().safeParse(formData.get("memberId"));
+  if (!memberId.success) return { ok: false, message: "회원을 먼저 선택해 주세요." };
+
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("attendance")
+      .delete()
+      .eq("member_id", memberId.data)
+      .eq("attendance_date", todayInSeoul())
+      .select("id");
+
+    if (error) return { ok: false, message: errorMessage(error) };
+    if (!data?.length) return { ok: true, message: "취소할 오늘 출석 기록이 없습니다." };
+
+    revalidatePath("/"); revalidatePath("/ranking"); revalidatePath("/admin");
+    return { ok: true, message: "오늘 출석을 취소했습니다." };
+  } catch (error) {
+    return { ok: false, message: errorMessage(error) };
+  }
+}
+
 export async function loginAdmin(_: ActionState, formData: FormData): Promise<ActionState> {
   const password = String(formData.get("password") ?? "");
   if (!isValidAdminPassword(password)) return { ok: false, message: "비밀번호가 올바르지 않습니다." };
