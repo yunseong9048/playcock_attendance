@@ -13,6 +13,18 @@ export function currentMonthInSeoul(date = new Date()) {
   return todayInSeoul(date).slice(0, 7);
 }
 
+export function previousMonthInSeoul(date = new Date()) {
+  const [year, month] = currentMonthInSeoul(date).split("-").map(Number);
+  return month === 1
+    ? `${year - 1}-12`
+    : `${year}-${String(month - 1).padStart(2, "0")}`;
+}
+
+export function displayMonth(month: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  return `${year}년 ${monthNumber}월`;
+}
+
 export function displayDate(date: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     timeZone: TIME_ZONE,

@@ -64,7 +64,7 @@ create trigger attendance_count_sync
 after insert or delete on public.attendance
 for each row execute function public.sync_member_attendance_count();
 
--- 누적 횟수는 members 컬럼에서, 이번 달 횟수는 PostgreSQL에서 집계합니다.
+-- 누적 횟수는 members 컬럼에서, 이번 달과 저번 달 횟수는 PostgreSQL에서 집계합니다.
 create or replace view public.attendance_rankings
 with (security_invoker = true) as
 select
@@ -75,13 +75,20 @@ select
   count(a.id) filter (
     where a.attendance_date >= date_trunc('month', timezone('Asia/Seoul', now()))::date
       and a.attendance_date < (date_trunc('month', timezone('Asia/Seoul', now())) + interval '1 month')::date
-  )::integer as month_count
+  )::integer as month_count,
+  count(a.id) filter (
+    where a.attendance_date >= (date_trunc('month', timezone('Asia/Seoul', now())) - interval '1 month')::date
+      and a.attendance_date < date_trunc('month', timezone('Asia/Seoul', now()))::date
+  )::integer as previous_month_count
 from public.members m
 left join public.attendance a on a.member_id = m.id
 group by m.id, m.name, m.created_at, m.attendance_count;
 
 alter table public.members enable row level security;
 alter table public.attendance enable row level security;
+
+-- 변경된 View 컬럼을 Supabase REST API가 즉시 인식하도록 스키마 캐시를 갱신합니다.
+notify pgrst, 'reload schema';
 
 -- 브라우저에는 service role key를 노출하지 않습니다.
 -- 앱의 모든 DB 작업은 Next.js 서버에서 service role로 수행됩니다.
